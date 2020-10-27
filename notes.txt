@@ -1,0 +1,121 @@
+Part 1: https://www.youtube.com/watch?v=cooE3wZ7O4I&t=1068s
+
+
+08:20   pyang -f tree ietf-interfaces.yang
+26:50   https://developer.cisco.com/site/standard-network-devices/
+27:06   TESTCONF is REST API version to consume YANG models. gRPC is Google RPC that we can use with YANG model.
+27:24   DOES YOUR DEVICE SUPPORT NETCONF / RESTCONF / gRPC? - scroll down to this.
+        Shows which platform, which software version is supported.
+        If YANG is like MIB, NETCONF, RESTCONF, and gRPC are like SNMP versions that are there.
+        So, this chart cays these iOS XE have supported NETCOMP and here's the RFC 6241 supported.
+        How can we use NETCONF to ask a device what models are supported?
+29:00   https://github.com/YangModels/yang
+        Here we can find IETF as well as vendor specific models from Cisco and many other vendors.
+29:21   Clicked on the standard folder to see standrad models
+        https://github.com/YangModels/yang/tree/master/standard/ietf/RFC
+        ietf-interfaces.yang
+29:58   https://github.com/YangModels/yang/tree/master/vendor - vendor models are there
+        https://github.com/YangModels/yang/tree/master/vendor/cisco - Cisco models
+        https://github.com/YangModels/yang/tree/master/vendor/cisco/xe - contains software versions - 16.10.1, 16.11.1, 16.12.1...
+        https://github.com/YangModels/yang/tree/master/vendor/cisco/xe/1671 - clicked on 16.7.1
+        Cisco-IOS-XE-aaa.yang - Cisco native model to describe triple A authentication that's there.
+        It's easy to see which models are supported and then get access to them so that we can use a tool like pyang to actually
+        inquire and navigate through them as they go through.
+31:32   The Cisco IOS-XE YANG models are modularized. The top model we start with is Cisco-IOS-XE-native.yang. It imports other ones.
+        It makes it easiter for software developers to manage models. Instead of updating a gigantic model,
+        a software developer can update a model that is small and is imported (e.g. Cisco-IOS-XE-mpls.yang).
+        The Cisco NX-OS (Nexus) team takes opposite approach. There is a sigle nxos native model that has everything in it:        
+32:41   https://github.com/YangModels/yang/tree/master/vendor/cisco/nx
+        They are using CSR 1000v (Cisco CSR Virtual Routers) sandbox in all of their training labs.
+33:30   Many things are available on their virtual platforms. No need to buy hardware on eBay.
+        Go grab the sandbox with the CSR virtual version or Nexus 9000 virtual version.
+        CSR 1000v is a great way to explore and learn about it.
+34:20   Where does NETCONF fit into this? NETCONF is the transport protocol side of this. NETCONF has no idea what it interfaces with
+        but it knows how to connect to a device securely. It knows how to authenticate, how to package a request and send a reuest to retrieve
+        the information or send configuration details in there. NETCONF is a protocol we use to communicate with a device.
+        NETCONF is one protoclo, RESTCONF is another protocol. NETCONF runs over the top of SSH. It leverages XML under the hood.
+35:20   RESTCONF runs over HTTP and leverages REST API standards like headres and authentication. 
+        Both NETCONF and RESTCONF leverage the exact YANG models that are there. If a device supports IETF interfaces model, we can
+        communicate with the device over either NETCONF or RESTCONF and get access over the same details that are there.
+35:55   NETCONF is better than SNMP because it's more secure - its's one of many benefits - because it leverages SSH.
+36:55   RESTCONF is now standardized to use HTTPS (HTTP is no longer supported).
+37:15   One would I use one over the other (NETCONF vs RESTCONF)? If the devices support both, it comes down to two factors:
+        - Personal preference. A lot of people use RESTCONF because they prefere the REST API interaction. Personally, he is in the same bucket.
+        - NETCONF was the first transport protocol that was stadardized. It is more mature. Most network devices don't support standard RESTCONF.
+        We don't want to use RESTCONF if it is supported in draft (it can change).
+        Device support is one of the reasons we cannot use RESTCONF.
+        Another reason is RESTCONF and NETCONF from configuration operational perspective are pretty at parity. 
+        If we want to configure an interface or get details on a protocol, we can do it using both NETCONF or RESTCONF.
+        But when we start to look at some of the other types of use cases things like streaming telemetry when we want to subscribe to something
+        or get details in some of those more advanced use cases around model-driven programmability, these use cases are not supported in RESTCONF.
+39:20   Most people will start with RESTCONF if it is supported. If it is not supported, go to NETCONF.
+        We have to learn NETCONF because it is supported on most of the devices today. if we are trying to use more advanced, we need to use
+        NETCONF.
+        Who will win? Application developers prefer RESTCONF, but network management software vendors (SolarWinds, Cisco) will probably
+        prefer NETCONF because of some of the efficiency and capabilities.
+40:50   gRPC by Google is emerging. Google wants a standard way to interface with devices in their data centers (a switch, a router, a server,
+        a microservice). Most of the typical use cases for gRPC are not in typical configuration or operational queries.
+        If we need to configure an interface, people are not using gRPC. What is the current statistics for a router? gRPC is not for this.
+        Streaming telemetry or model driven telemetry - instead of polling the device every 5 secs or sending traps we are going 
+        to setup kind of this connection between the collection system and the devices and we are going to stream the event 
+        in nearly a real time to the collection system from the device. This is where gRPC is used today. That can change over time.
+43:45   Where to start? See links under the video:
+        Learning Labs on NETCONF, RESTCONF, and YANG - http://cs.co/9001DIus5
+        
+
+Part 2: https://www.youtube.com/watch?v=txf9M4Ud9yU&t
+
+01:20   $ ssh -oHostKeyAlgorithms=+ssh-dss developer@ios-xe-mgmt.cisco.com -p 10000 -s netconf
+        SSH standard port is 830, but they are running the sanbox on 10000
+        
+alex@Alexs-Mac-mini ~ % ssh -oHostKeyAlgorithms=+ssh-dss developer@ios-xe-mgmt.cisco.com -p 10000 -s netconf
+developer@ios-xe-mgmt.cisco.com's password: C1sco12345
+<?xml version="1.0" encoding="UTF-8"?>
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<capabilities>
+<capability>urn:ietf:params:netconf:base:1.0</capability>
+<capability>urn:ietf:params:netconf:base:1.1</capability>
+<capability>urn:ietf:params:netconf:capability:writable-running:1.0</capability>
+<capability>urn:ietf:params:netconf:capability:xpath:1.0</capability>
+...
+<capability>urn:ietf:params:xml:ns:yang:smiv2:TUNNEL-MIB?module=TUNNEL-MIB&amp;revision=2005-05-16</capability>
+<capability>urn:ietf:params:xml:ns:yang:smiv2:UDP-MIB?module=UDP-MIB&amp;revision=2005-05-20</capability>
+<capability>urn:ietf:params:xml:ns:yang:smiv2:VPN-TC-STD-MIB?module=VPN-TC-STD-MIB&amp;revision=2005-11-15</capability>
+<capability>urn:ietf:params:xml:ns:netconf:base:1.0?module=ietf-netconf&amp;revision=2011-06-01</capability>
+<capability>urn:ietf:params:xml:ns:yang:ietf-netconf-with-defaults?module=ietf-netconf-with-defaults&amp;revision=2011-06-01</capability>
+<capability>
+        urn:ietf:params:netconf:capability:notification:1.1
+      </capability>
+</capabilities>
+<session-id>1569</session-id></hello>]]>]]>
+
+We got a list of capabilities and the device is waiting for us to finish the hello process.
+
+04:50 Let's send hello back
+<?xml version="1.0" encoding="UTF-8"?>
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <capabilities>
+    <capability>urn:ietf:params:netconf:base:1.0</capability>
+  </capabilities>
+</hello>]]>]]>
+
+08:40   To close session send this:
+<?xml version="1.0" encoding="UTF-8"?>
+  <rpc message-id="1239123" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <close-session />
+  </rpc>         
+]]>]]> 
+
+<session-id>57</session-id></hello>]]>]]><?xml version="1.0" encoding="UTF-8"?>
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <capabilities>
+    <capability>urn:ietf:params:netconf:base:1.0</capability>
+  </capabilities>
+</hello>]]>]]>
+<?xml version="1.0" encoding="UTF-8"?>
+  <rpc message-id="1239123" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <close-session />
+  </rpc>         
+]]>]]><?xml version="1.0" encoding="UTF-8"?>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="1239123"><ok/></rpc-reply>]]>]]>
+alex@Alexs-Mac-mini ~ %        
