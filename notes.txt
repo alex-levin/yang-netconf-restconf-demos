@@ -3,7 +3,7 @@ Part 1: https://www.youtube.com/watch?v=cooE3wZ7O4I&t=1068s
 
 08:20   pyang -f tree ietf-interfaces.yang
 26:50   https://developer.cisco.com/site/standard-network-devices/
-27:06   TESTCONF is REST API version to consume YANG models. gRPC is Google RPC that we can use with YANG model.
+27:06   RESTCONF is REST API version to consume YANG models. gRPC is Google RPC that we can use with YANG model.
 27:24   DOES YOUR DEVICE SUPPORT NETCONF / RESTCONF / gRPC? - scroll down to this.
         Shows which platform, which software version is supported.
         If YANG is like MIB, NETCONF, RESTCONF, and gRPC are like SNMP versions that are there.
