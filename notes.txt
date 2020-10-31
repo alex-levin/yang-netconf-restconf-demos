@@ -118,4 +118,204 @@ We got a list of capabilities and the device is waiting for us to finish the hel
   </rpc>         
 ]]>]]><?xml version="1.0" encoding="UTF-8"?>
 <rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="1239123"><ok/></rpc-reply>]]>]]>
-alex@Alexs-Mac-mini ~ %        
+alex@Alexs-Mac-mini ~ % 
+
+https://developer.cisco.com/video/net-prog-basics
+https://developer.cisco.com/video/net-prog-basics/02-network_device_apis/yang
+github.com/CiscoDevNet/metprog_basics
+
+https://developer.cisco.com/video/net-prog-basics/02-network_device_apis/restconf
+
+https://tools.ietf.org/html/rfc8040
+3.1.  Root Resource Discovery
+
+   In line with the best practices defined by [RFC7320], RESTCONF
+   enables deployments to specify where the RESTCONF API is located.
+   When first connecting to a RESTCONF server, a RESTCONF client MUST
+   determine the root of the RESTCONF API.  There MUST be exactly one
+   "restconf" link relation returned by the device.
+
+   The client discovers this by getting the "/.well-known/host-meta"
+   resource ([RFC6415]) and using the <Link> element containing the
+   "restconf" attribute:
+
+   Example returning /restconf:
+
+   The client might send the following:
+
+      GET /.well-known/host-meta HTTP/1.1
+      Host: example.com
+      Accept: application/xrd+xml
+
+   The server might respond as follows:
+
+      HTTP/1.1 200 OK
+      Content-Type: application/xrd+xml
+      Content-Length: nnn
+
+      <XRD xmlns='http://docs.oasis-open.org/ns/xri/xrd-1.0'>
+          <Link rel='restconf' href='/restconf'/>
+      </XRD>
+      
+Postman:
+https://ios-xe-mgmt.cisco.com:9443/restconf/data/ietf-interfaces:interfaces
+Authentication:
+Username: developer
+Password: C1sco12345
+Response:
+{
+    "ietf-interfaces:interfaces": {
+        "interface": [
+            {
+                "name": "GigabitEthernet1",
+                "description": "MANAGEMENT INTERFACE - DON'T TOUCH ME",
+                "type": "iana-if-type:ethernetCsmacd",
+                "enabled": true,
+                "ietf-ip:ipv4": {
+                    "address": [
+                        {
+                            "ip": "10.10.20.48",
+                            "netmask": "255.255.255.0"
+                        }
+                    ]
+                },
+                "ietf-ip:ipv6": {}
+            },
+            {
+                "name": "GigabitEthernet2",
+                "description": "Network Interface",
+                "type": "iana-if-type:ethernetCsmacd",
+                "enabled": false,
+                "ietf-ip:ipv4": {},
+                "ietf-ip:ipv6": {}
+            },
+            {
+                "name": "GigabitEthernet3",
+                "description": "Network Interface",
+                "type": "iana-if-type:ethernetCsmacd",
+                "enabled": false,
+                "ietf-ip:ipv4": {},
+                "ietf-ip:ipv6": {}
+            },
+            {
+                "name": "Loopback111",
+                "description": "Test Lo111-nocommit1",
+                "type": "iana-if-type:softwareLoopback",
+                "enabled": true,
+                "ietf-ip:ipv4": {
+                    "address": [
+                        {
+                            "ip": "172.16.111.1",
+                            "netmask": "255.255.255.0"
+                        }
+                    ]
+                },
+                "ietf-ip:ipv6": {}
+            }
+        ]
+    }
+}
+
+https://ios-xe-mgmt.cisco.com:9443/restconf/data/ietf-interfaces:interfaces/interface=GigabitEthernet1?depth=unbound
+
+Root is almost always restconf in https://ios-xe-mgmt.cisco.com:9443/restconf/
+To discover root:     
+https://<ADDRESS>/.well-known/host-meta
+https://ios-xe-mgmt.cisco.com:9443/.well-known/host-meta
+Response:
+<XRD xmlns='http://docs.oasis-open.org/ns/xri/xrd-1.0'>
+    <Link rel='restconf' href='/restconf'/>
+</XRD>
+
+https://developer.cisco.com/video/net-prog-basics/02-network_device_apis/restconf
+Part 3
+12:45   Let's look at the data model and how to map it into a specific URI
+
+
+We need to come up with a yang model which returns a list of the discovered taclanes similar to this one which returns a list of the device interfaces:
+
+alex@Alexs-Mac-mini ~ % curl -H "Accept: application/yang-data+json" -k https://sandbox-iosxe-latest-1.cisco.com/restconf/data/ietf-interfaces:interfaces -u "developer:C1sco12345"
+{
+  "ietf-interfaces:interfaces": {
+    "interface": [
+      {
+        "name": "GigabitEthernet1",
+        "description": "MANAGEMENT INTERFACE - DON'T TOUCH ME",
+        "type": "iana-if-type:ethernetCsmacd",
+        "enabled": true,
+        "ietf-ip:ipv4": {
+          "address": [
+            {
+              "ip": "10.10.20.48",
+              "netmask": "255.255.255.0"
+            }
+          ]
+        },
+        "ietf-ip:ipv6": {
+        }
+      },
+      {
+        "name": "GigabitEthernet2",
+        "description": "Network Interface",
+        "type": "iana-if-type:ethernetCsmacd",
+        "enabled": false,
+        "ietf-ip:ipv4": {
+        },
+        "ietf-ip:ipv6": {
+        }
+      },
+      {
+        "name": "GigabitEthernet3",
+        "description": "Network Interface",
+        "type": "iana-if-type:ethernetCsmacd",
+        "enabled": false,
+        "ietf-ip:ipv4": {
+        },
+        "ietf-ip:ipv6": {
+        }
+      },
+      {
+        "name": "Loopback21",
+        "type": "iana-if-type:softwareLoopback",
+        "enabled": true,
+        "ietf-ip:ipv4": {
+        },
+        "ietf-ip:ipv6": {
+        }
+      },
+      {
+        "name": "Loopback102",
+        "description": "Configured by RESTCONF",
+        "type": "iana-if-type:softwareLoopback",
+        "enabled": false,
+        "ietf-ip:ipv4": {
+        },
+        "ietf-ip:ipv6": {
+        }
+      },
+      {
+        "name": "Tunnel0",
+        "type": "iana-if-type:tunnel",
+        "enabled": true,
+        "ietf-ip:ipv4": {
+        },
+        "ietf-ip:ipv6": {
+        }
+      }
+    ]
+  }
+}
+alex@Alexs-Mac-mini ~ % 
+
+Example to configure IP address: https://github.com/CiscoDevNet/python_code_samples_network/blob/master/RESTCONF/patch-Ip-address-config.py
+We will be using curl for testing.
+
+A good place to start developing a YANG model: http://www.yang-central.org/twiki/bin/view/Main/WebHome - scroll down to A quick YANG example.
+See how ietf-yang-types and ietf-inet-types data types are used in https://networkop.co.uk/blog/2017/02/15/restconf-yang:
+import ietf-yang-types { prefix "yang"; }
+import ietf-inet-types { prefix "inet"; }
+...
+leaf prefix { type inet:ipv4-address; }
+leaf mask { type yang:dotted-quad; }
+
+and in https://www.youtube.com/watch?v=AjmyDvKyH2w&t=1022s at 07:55 
