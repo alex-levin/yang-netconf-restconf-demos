@@ -250,6 +250,8 @@ We need to come up with a yang model which returns a list of the discovered tacl
 
 alex@Alexs-Mac-mini ~ % curl -H "Accept: application/yang-data+json" -k https://sandbox-iosxe-latest-1.cisco.com/restconf/data/ietf-interfaces:interfaces -u "developer:C1sco12345"
 
+Then we can drill down to a particular taclane and obtain data from it like we did above with GigabitEthernet1. 
+
 Where does ietf-interfaces:interfaces come from?
 Let's look at https://github.com/YangModels/yang/blob/master/standard/ietf/RFC/ietf-interfaces%402018-02-20.yang:
 
@@ -348,3 +350,79 @@ leaf prefix { type inet:ipv4-address; }
 leaf mask { type yang:dotted-quad; }
 
 and in https://www.youtube.com/watch?v=AjmyDvKyH2w&t=1022s at 07:55 
+
+Need to support RESTCONF RFC https://tools.ietf.org/html/rfc8040
+3.1..3.3:
+3.3.1.  {+restconf}/data
+   This mandatory resource represents the combined configuration and
+   state data resources that can be accessed by a client.  It cannot be
+   created or deleted by the client.  The datastore resource type is
+   defined in Section 3.4.
+
+curl -H "Accept: application/yang-data+json" -k https://sandbox-iosxe-latest-1.cisco.com/restconf/data -u "developer:C1sco12345"   
+        {
+          "name": "ietf-interfaces",
+          "revision": "2014-05-08",
+          "schema": "https://10.10.20.48:443/restconf/tailf/modules/ietf-interfaces/2014-05-08",
+          "namespace": "urn:ietf:params:xml:ns:yang:ietf-interfaces",
+          "feature": ["arbitrary-names", "if-mib", "pre-provisioning"],
+          "deviation": [
+            {
+              "name": "cisco-xe-ietf-ip-deviation",
+              "revision": "2016-08-10"
+            }
+          ],
+          "conformance-type": "implement"
+        },
+        {
+          "name": "ietf-interfaces-ext",
+          "revision": "",
+          "schema": "https://10.10.20.48:443/restconf/tailf/modules/ietf-interfaces-ext",
+          "namespace": "urn:ietf:params:xml:ns:yang:ietf-interfaces-ext",
+          "conformance-type": "implement"
+        },
+        {
+          "name": "ietf-ip",
+          "revision": "2014-06-16",
+          "schema": "https://10.10.20.48:443/restconf/tailf/modules/ietf-ip/2014-06-16",
+          "namespace": "urn:ietf:params:xml:ns:yang:ietf-ip",
+          "feature": ["ipv4-non-contiguous-netmasks", "ipv6-privacy-autoconf"],
+          "deviation": [
+            {
+              "name": "cisco-xe-ietf-ip-deviation",
+              "revision": "2016-08-10"
+            }
+          ],
+          "conformance-type": "implement"
+        },
+        {
+          "name": "ietf-ipv4-unicast-routing",
+          "revision": "2015-05-25",
+          "schema": "https://10.10.20.48:443/restconf/tailf/modules/ietf-ipv4-unicast-routing/2015-05-25",
+          "namespace": "urn:ietf:params:xml:ns:yang:ietf-ipv4-unicast-routing",
+          "deviation": [
+            {
+              "name": "cisco-xe-ietf-ipv4-unicast-routing-deviation",
+              "revision": "2015-09-11"
+            }
+          ],
+          "conformance-type": "implement"
+        }   
+   
+curl -H "Accept: application/yang-data+json" -k https://sandbox-iosxe-latest-1.cisco.com/restconf/data -u "developer:C1sco12345"
+For GemONE:
+curl -H "Accept: application/yang-data+json" -k https://localhost:8080/GemONE/api/restconf/data -u "admin:password"
+
+alex@Alexs-Mac-mini ~ % curl -H "Accept: application/yang-data+json" -k https://sandbox-iosxe-latest-1.cisco.com/restconf                                                          
+{
+  "errors": {
+    "error": [
+      {
+        "error-tag": "access-denied",
+        "error-type": "protocol"
+      }
+    ]
+  }
+}
+alex@Alexs-Mac-mini ~ % curl -H "Accept: application/yang-data+json" -k https://sandbox-iosxe-latest-1.cisco.com/restconf -u "developer:C1sco12345"
+{"ietf-restconf:restconf":{"data":{},"operations":{},"yang-library-version":"2016-06-21"}}%
